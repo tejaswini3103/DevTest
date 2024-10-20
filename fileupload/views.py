@@ -1,3 +1,5 @@
+# fileupload/views.py
+
 import pandas as pd
 from django.shortcuts import render
 from .forms import UploadForm
@@ -8,21 +10,28 @@ def upload_file(request):
         form = UploadForm(request.POST, request.FILES)
         if form.is_valid():
             file = request.FILES['file']
+            
             # Use pandas to read the uploaded file
-            data = pd.read_excel(file) if file.name.endswith('.xlsx') else pd.read_csv(file)
+            if file.name.endswith('.xlsx'):
+                data = pd.read_excel(file)
+            elif file.name.endswith('.csv'):
+                data = pd.read_csv(file)
+            else:
+                data = None
 
-            # Generate summary report
-            summary = data.describe().to_string()
+            # Convert the DataFrame to HTML to display as a table
+            if data is not None:
+                table = data.to_html(index=False)  # Convert DataFrame to HTML table
 
-            # Send email with the summary report as body text
-            send_mail(
-                'Python Assignment - Your Name',
-                summary,
-                'from@example.com',
-                ['tech@themedius.ai'],
-            )
+                # Send an email confirming file upload (optional)
+                send_mail(
+                    'Python Assignment - Tejaswini Meesala',  # Updated email subject
+                    f'Excel file uploaded successfully.\nRows: {data.shape[0]}, Columns: {data.shape[1]}',
+                    'tejaswinimeesala75@gmail.com',  # Your email
+                    ['tech@themedius.ai'],
+                )
 
-            return render(request, 'fileupload/success.html', {'summary': summary})
+                return render(request, 'fileupload/success.html', {'table': table})
 
     else:
         form = UploadForm()
