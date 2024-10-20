@@ -21,7 +21,8 @@ def upload_file(request):
 
             # Convert the DataFrame to HTML to display as a table
             if data is not None:
-                table = data.to_html(index=False)  # Convert DataFrame to HTML table
+                table = data.to_html(index=False, classes='styled-table')  # Add the custom class
+ # Convert DataFrame to HTML table
 
                 # Send an email confirming file upload (optional)
                 send_mail(
